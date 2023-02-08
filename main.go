@@ -1,35 +1,27 @@
 package main
 
 import (
-	"encoding/json"
-	"fmt"
 	"log"
+	"net/http"
 	"os"
 
 	"github.com/kravetsd/chose-your-own-adventure/cyoa"
-	"github.com/kravetsd/chose-your-own-adventure/cyoaweb"
 )
 
 func main() {
-	fmt.Println("Hello, cyoa!")
 	fl, err := os.Open("gopher.json")
 	if err != nil {
 		log.Fatal("Openning file:", err)
 	}
 	defer fl.Close()
 
-	jsondec := json.NewDecoder(fl)
-
-	var bk cyoa.Story
-
-	err = jsondec.Decode(&bk)
-
-	fmt.Printf("%+v", bk["intro"])
-
+	story, err := cyoa.JsonStory(fl)
 	if err != nil {
-		log.Fatal("Error decoding json:", err)
+		log.Fatal("Decoding json:", err)
 	}
 
-	cyoaweb.RunStoryWeb()
+	http.Handle("/", story)
+
+	http.ListenAndServe(":8080", nil)
 
 }
