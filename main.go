@@ -20,7 +20,8 @@ func main() {
 		log.Fatal("Decoding json:", err)
 	}
 
-	http.Handle("/", story)
+	sh := cyoa.NewStoryHandler(story)
+	http.Handle("/", sh)
 
 	http.ListenAndServe(":8080", nil)
 

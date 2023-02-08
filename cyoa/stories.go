@@ -18,7 +18,7 @@ func JsonStory(r io.Reader) (Story, error) {
 
 }
 
-func (s Story) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+func (sh StoryHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("Hello, world from story!"))
 }
 
@@ -34,3 +34,12 @@ type Chapter struct {
 }
 
 type Story map[string]Chapter
+
+type StoryHandler struct {
+	Story Story
+}
+
+//Why we return a pointer to a StoryHandler? what is a practice in this case?
+func NewStoryHandler(st Story) *StoryHandler {
+	return &StoryHandler{Story: st}
+}
