@@ -2,9 +2,11 @@ package cyoa
 
 import (
 	"encoding/json"
+	"html/template"
 	"io"
 	"log"
 	"net/http"
+	"strings"
 )
 
 func JsonStory(r io.Reader) (Story, error) {
@@ -18,8 +20,22 @@ func JsonStory(r io.Reader) (Story, error) {
 
 }
 
+var myFuncMap = template.FuncMap{
+	// The name "title" is what the function will be called in the template text.
+	"join": strings.Join,
+}
+
 func (sh StoryHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("Hello, world from story!"))
+	tp, err := template.New("story.html").Funcs(myFuncMap).ParseFiles("templates/story.html")
+	if err != nil {
+		log.Fatal("Parsing template:", err)
+	}
+	err = tp.Execute(w, sh.Story["intro"])
+	if err != nil {
+		log.Fatal("Executing template:", err)
+	}
+	//	log.Printf("%+v", sh)
+
 }
 
 type Option struct {

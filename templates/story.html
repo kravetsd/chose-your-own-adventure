@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+<title>  {{ .Title }} </title>
+
+<head>
+</head>
+
+<body>
+    <h1>{{ .Title }}</h1>
+    <div> {{ join .Story "" }}</div>
+    
+    </br>
+    <div> Options: </div>
+    {{ range $index, $element := .Options }}
+    <li> <a href="/{{ $element.Title}}"> {{ $element.Text }} </a> </li>
+    {{ end }}
+</body>
+
+</html>
