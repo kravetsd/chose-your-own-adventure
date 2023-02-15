@@ -10,10 +10,12 @@
     <div> {{ join .Story "" }}</div>
     
     </br>
-    <div> Options: </div>
     {{ range $index, $element := .Options }}
-    <li> <a href="/{{ $element.Title}}"> {{ $element.Text }} </a> </li>
+    <li> Option {{ plusOne  $index }}: <a href="/{{ $element.Title}}"> {{ $element.Text }} </a> </li>
     {{ end }}
+    </br>
+    </br>
+    <div> Go to the very <a href="/intro"> beginning </a></div>
 </body>
 
 </html>
