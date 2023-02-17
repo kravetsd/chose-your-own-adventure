@@ -36,18 +36,25 @@ func (sh StoryHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		log.Fatal("Parsing template:", err)
 	}
 
-	if chapter, ok := sh.Story[strings.Split(r.URL.Path, "/")[1]]; ok {
+	// we trim leading "/" in path
+	path := r.URL.Path
+
+	if path == "" || path == "/" {
+		path = "/intro"
+	}
+
+	path = path[1:]
+
+	if chapter, ok := sh.Story[path]; ok {
 		err = tp.Execute(w, chapter)
 		if err != nil {
 			log.Fatal("Executing template:", err)
+			http.Error(w, "Something wenr worng", http.StatusInternalServerError)
 		}
 	} else {
-		err = tp.Execute(w, sh.Story["intro"])
-		if err != nil {
-			log.Fatal("Executing template:", err)
-		}
+		log.Default().Printf(" %s does not exist", path)
+		http.Error(w, "This chapter does not exist.", http.StatusNotFound)
 	}
-
 }
 
 type Option struct {
