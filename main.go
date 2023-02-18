@@ -32,6 +32,7 @@ func main() {
 	// 	log.Println(http.ListenAndServe("localhost:6060", nil))
 	// }()
 
+	log.Println("Visit performance tool at http://localhost:6060/debug/statsviz/")
 	statsviz.RegisterDefault()
 	http.ListenAndServe(":8080", nil)
 
