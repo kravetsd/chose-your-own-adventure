@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/arl/statsviz"
 	"github.com/kravetsd/chose-your-own-adventure/cyoa"
 )
 
@@ -23,6 +24,15 @@ func main() {
 	sh := cyoa.NewStoryHandler(story)
 	http.Handle("/", sh)
 
+	// mux := http.NewServeMux()
+	// statsviz.Register(mux)
+
+	// go func() {
+	// 	fmt.Println("Visit me at http://localhost:6060/debug/statsviz/")
+	// 	log.Println(http.ListenAndServe("localhost:6060", nil))
+	// }()
+
+	statsviz.RegisterDefault()
 	http.ListenAndServe(":8080", nil)
 
 }
