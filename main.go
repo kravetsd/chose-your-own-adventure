@@ -23,11 +23,19 @@ func main() {
 		log.Fatal("Decoding json:", err)
 	}
 
-	sh := cyoa.NewStoryHandler(story, cyoa.WithTemplatePath("templates/story_new.html"), cyoa.WithUrlPath("/mysite"))
-	http.Handle("/", sh)
+	sh := cyoa.NewStoryHandler(story, cyoa.WithTemplatePath("templates/story_new.html"), cyoa.WithUrlPath(customFuncPath))
+	http.Handle("/mysite/", sh)
 
 	log.Println("Visit performance tool at http://localhost:8080/debug/statsviz/")
 	statsviz.RegisterDefault()
 	http.ListenAndServe(":8080", nil)
 
+}
+
+func customFuncPath(r *http.Request) string {
+	path := r.URL.Path
+	if path == "/mysite" || path == "/mysite/" {
+		path = "/mysite/intro"
+	}
+	return path[len("/mysite/"):]
 }

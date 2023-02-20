@@ -1,7 +1,6 @@
 package cyoa
 
 import (
-	"fmt"
 	"html/template"
 	"log"
 	"net/http"
@@ -12,7 +11,8 @@ import (
 type StoryHandler struct {
 	Story Story
 	tp    *template.Template
-	path  string
+	//path  string
+	funcPath func(r *http.Request) string
 }
 
 type Opt func(sh *StoryHandler)
@@ -30,9 +30,9 @@ func WithTemplatePath(path string) Opt {
 	}
 }
 
-func WithUrlPath(urlPath string) Opt {
+func WithUrlPath(f func(r *http.Request) string) Opt {
 	return func(sh *StoryHandler) {
-		sh.path = urlPath
+		sh.funcPath = f
 	}
 }
 
@@ -46,17 +46,18 @@ var myFuncMap = template.FuncMap{
 	},
 }
 
-func (sh StoryHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+func defaultFuncPath(r *http.Request) string {
 	path := r.URL.Path
-
 	if path == "" || path == "/" {
-		path = fmt.Sprintf("%v/intro", sh.path)
+		path = "/intro"
 	}
+	return path[1:]
+}
+
+func (sh StoryHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+
+	path := sh.funcPath(r)
 	log.Println(path)
-
-	paths := strings.Split(path, "/")
-	path = paths[len(paths)-1]
-
 	if chapter, ok := sh.Story[path]; ok {
 		err := sh.tp.Execute(w, chapter)
 		if err != nil {
@@ -89,7 +90,7 @@ func NewStoryHandler(st Story, opts ...Opt) *StoryHandler {
 		log.Printf("Parsing template: %v", err)
 	}
 
-	sh := &StoryHandler{Story: st, tp: tp}
+	sh := &StoryHandler{Story: st, tp: tp, funcPath: defaultFuncPath}
 	for _, opt := range opts {
 		opt(sh)
 	}
