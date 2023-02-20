@@ -21,7 +21,7 @@ func main() {
 		log.Fatal("Decoding json:", err)
 	}
 
-	sh := cyoa.NewStoryHandler(story)
+	sh := cyoa.NewStoryHandler(story, cyoa.WithPath("templates/story_new.html"))
 	http.Handle("/", sh)
 
 	// mux := http.NewServeMux()

@@ -15,7 +15,7 @@ type StoryHandler struct {
 
 type Opt func(sh *StoryHandler)
 
-func (sh *StoryHandler) WithPath(path string) Opt {
+func WithPath(path string) Opt {
 	fl, err := os.Stat(path)
 	if err != nil {
 		log.Printf("Error openning custom template file: %v", err)
