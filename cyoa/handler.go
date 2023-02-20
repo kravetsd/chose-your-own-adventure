@@ -28,6 +28,7 @@ func WithPath(path string) Opt {
 	}
 }
 
+// TODO: Addtional functions can be also handled via functional options later.
 var myFuncMap = template.FuncMap{
 	// The name "title" is what the function will be called in the template text.
 	"join": strings.Join,
