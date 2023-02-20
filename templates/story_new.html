@@ -7,15 +7,15 @@
 
 <body>
     <h1>{{ .Title }} (Story NEW)</h1>
-    <div> {{ join .Story "" }}</div>
+    <div> {{ join .Story " " }}</div>
     
     </br>
     {{ range $index, $element := .Options }}
-    <li> Option {{ plusOne  $index }}: <a href="/{{ $element.Title}}"> {{ $element.Text }} </a> </li>
+    <li> Option {{ plusOne  $index }}: <a href="/mysite/{{ $element.Title}}"> {{ $element.Text }} </a> </li>
     {{ end }}
     </br>
     </br>
-    <div> Go to the very <a href="/intro"> beginning </a></div>
+    <div> Go to the very <a href="/mysite/intro"> beginning </a></div>
 </body>
 
 </html>

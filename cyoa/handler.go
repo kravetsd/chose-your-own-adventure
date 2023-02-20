@@ -1,6 +1,7 @@
 package cyoa
 
 import (
+	"fmt"
 	"html/template"
 	"log"
 	"net/http"
@@ -11,11 +12,12 @@ import (
 type StoryHandler struct {
 	Story Story
 	tp    *template.Template
+	path  string
 }
 
 type Opt func(sh *StoryHandler)
 
-func WithPath(path string) Opt {
+func WithTemplatePath(path string) Opt {
 	fl, err := os.Stat(path)
 	if err != nil {
 		log.Printf("Error openning custom template file: %v", err)
@@ -25,6 +27,12 @@ func WithPath(path string) Opt {
 		if err != nil {
 			log.Printf("Error parsing template %v : %v", path, err)
 		}
+	}
+}
+
+func WithUrlPath(urlPath string) Opt {
+	return func(sh *StoryHandler) {
+		sh.path = urlPath
 	}
 }
 
@@ -42,10 +50,12 @@ func (sh StoryHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	path := r.URL.Path
 
 	if path == "" || path == "/" {
-		path = "/intro"
+		path = fmt.Sprintf("%v/intro", sh.path)
 	}
+	log.Println(path)
 
-	path = path[1:]
+	paths := strings.Split(path, "/")
+	path = paths[len(paths)-1]
 
 	if chapter, ok := sh.Story[path]; ok {
 		err := sh.tp.Execute(w, chapter)

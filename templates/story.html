@@ -7,7 +7,7 @@
 
 <body>
     <h1>{{ .Title }}</h1>
-    <div> {{ join .Story "" }}</div>
+    <div> {{ join .Story " " }}</div>
     
     </br>
     {{ range $index, $element := .Options }}

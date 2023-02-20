@@ -10,27 +10,21 @@ import (
 )
 
 func main() {
-	fl, err := os.Open("gopher.json")
+	//fl, err := os.Open("gopher.json")
+	bts, err := os.ReadFile("gopher.json")
 	if err != nil {
 		log.Fatal("Openning file:", err)
 	}
-	defer fl.Close()
+	//defer fl.Close()
 
-	story, err := cyoa.JsonStory(fl)
+	// story, err := cyoa.JsonStory(fl)
+	story, err := cyoa.JsonStoryDecode(bts)
 	if err != nil {
 		log.Fatal("Decoding json:", err)
 	}
 
-	sh := cyoa.NewStoryHandler(story, cyoa.WithPath("templates/story_new.html"))
+	sh := cyoa.NewStoryHandler(story, cyoa.WithTemplatePath("templates/story_new.html"), cyoa.WithUrlPath("/mysite"))
 	http.Handle("/", sh)
-
-	// mux := http.NewServeMux()
-	// statsviz.Register(mux)
-
-	// go func() {
-	// 	fmt.Println("Visit me at http://localhost:6060/debug/statsviz/")
-	// 	log.Println(http.ListenAndServe("localhost:6060", nil))
-	// }()
 
 	log.Println("Visit performance tool at http://localhost:8080/debug/statsviz/")
 	statsviz.RegisterDefault()
