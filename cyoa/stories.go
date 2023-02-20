@@ -2,7 +2,6 @@ package cyoa
 
 import (
 	"encoding/json"
-	"html/template"
 	"io"
 	"log"
 )
@@ -19,11 +18,6 @@ type Chapter struct {
 }
 
 type Story map[string]Chapter
-
-type StoryHandler struct {
-	Story Story
-	tp    *template.Template
-}
 
 func JsonStory(r io.Reader) (Story, error) {
 	st := make(Story)

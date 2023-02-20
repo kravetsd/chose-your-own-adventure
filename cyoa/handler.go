@@ -4,8 +4,29 @@ import (
 	"html/template"
 	"log"
 	"net/http"
+	"os"
 	"strings"
 )
+
+type StoryHandler struct {
+	Story Story
+	tp    *template.Template
+}
+
+type Opt func(sh *StoryHandler)
+
+func (sh *StoryHandler) WithPath(path string) Opt {
+	fl, err := os.Stat(path)
+	if err != nil {
+		log.Printf("Error openning custom template file: %v", err)
+	}
+	return func(sh *StoryHandler) {
+		sh.tp, err = template.New(fl.Name()).Funcs(myFuncMap).ParseFiles(path)
+		if err != nil {
+			log.Printf("Error parsing template %v : %v", path, err)
+		}
+	}
+}
 
 var myFuncMap = template.FuncMap{
 	// The name "title" is what the function will be called in the template text.
@@ -17,16 +38,6 @@ var myFuncMap = template.FuncMap{
 }
 
 func (sh StoryHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	//adding .Funcs(myFuncMap) to a template gives us a custom "join" function inside a template.
-
-	//The code bellow shows that calls can be chained together.
-	// var err error
-	// sh.tp, err = template.New("story.html").Funcs(myFuncMap).ParseFiles("templates/story.html")
-	// if err != nil {
-	// 	log.Fatal("Parsing template:", err)
-	// }
-
-	// we trim leading "/" in path
 	path := r.URL.Path
 
 	if path == "" || path == "/" {
@@ -48,7 +59,7 @@ func (sh StoryHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 //Why we return a pointer to a StoryHandler? what is a practice in this case?
-func NewStoryHandler(st Story) *StoryHandler {
+func NewStoryHandler(st Story, opts ...Opt) *StoryHandler {
 	// The code bellow add some debugging just for study purposes.
 	var err error
 	// template.New function is used because we want to add a custom function to a template before it is parsed.
@@ -66,5 +77,10 @@ func NewStoryHandler(st Story) *StoryHandler {
 	if err != nil {
 		log.Printf("Parsing template: %v", err)
 	}
-	return &StoryHandler{Story: st, tp: tp}
+
+	sh := &StoryHandler{Story: st, tp: tp}
+	for _, opt := range opts {
+		opt(sh)
+	}
+	return sh
 }

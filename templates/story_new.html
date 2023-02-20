@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<title>  {{ .Title }} </title>
+
+<head>
+</head>
+
+<body>
+    <h1>{{ .Title }} (Story NEW)</h1>
+    <div> {{ join .Story "" }}</div>
+    
+    </br>
+    {{ range $index, $element := .Options }}
+    <li> Option {{ plusOne  $index }}: <a href="/{{ $element.Title}}"> {{ $element.Text }} </a> </li>
+    {{ end }}
+    </br>
+    </br>
+    <div> Go to the very <a href="/intro"> beginning </a></div>
+</body>
+
+</html>
