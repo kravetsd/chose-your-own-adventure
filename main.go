@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strings"
 
 	"github.com/arl/statsviz"
 	"github.com/kravetsd/chose-your-own-adventure/cyoa"
@@ -42,9 +43,18 @@ func main() {
 	go func() {
 		for {
 			if <-ch == "start" {
-				fmt.Println("Starting CLI story")
-				fmt.Println("Please enter \"done\" to exit the story... ")
+				currentStory := story["intro"]
+				fmt.Println(currentStory.Title)
+				fmt.Println("------------")
+				fmt.Println(strings.Join(currentStory.Story, " "))
+				fmt.Println("------------")
+				fmt.Println("Press the number to choose how to proceed with this story : ")
+				for i, st := range currentStory.Options {
+					fmt.Printf("%d.  %v \n", i+1, st.Text)
+				}
+				fmt.Println("------------")
 				var done string
+				fmt.Println("Please enter \"done\" to exit the story... ")
 				fmt.Scan(&done)
 				//ch <- "done"
 				ch <- done
