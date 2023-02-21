@@ -40,14 +40,16 @@ func main() {
 
 	}()
 	go func() {
-		if <-ch == "start" {
-			fmt.Println("Starting CLI story")
-			fmt.Println("Please enter \"done\" to exit the story... ")
-			var done string
-			fmt.Scan(&done)
-			ch <- "done"
-		} else {
-			fmt.Println(<-ch)
+		for {
+			if <-ch == "start" {
+				fmt.Println("Starting CLI story")
+				fmt.Println("Please enter \"done\" to exit the story... ")
+				var done string
+				fmt.Scan(&done)
+				//ch <- "done"
+				ch <- done
+
+			}
 		}
 	}()
 
@@ -59,7 +61,7 @@ func main() {
 			fmt.Println("Bye-bye!")
 			return
 
-		case "start":
+		default:
 			ch <- "start"
 		}
 	}
