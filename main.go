@@ -5,14 +5,13 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"strings"
+	"strconv"
 
 	"github.com/arl/statsviz"
 	"github.com/kravetsd/chose-your-own-adventure/cyoa"
 )
 
 func main() {
-
 	//fl, err := os.Open("gopher.json")
 	//To read from file and use io.Reader you can use cyoa.JsonStory()
 	//defer fl.Close()
@@ -30,38 +29,41 @@ func main() {
 		log.Fatal("Decoding json:", err)
 	}
 
-	ch := make(chan string, 2)
+	ch := make(chan string)
 	go func() {
 		sh := cyoa.NewStoryHandler(story, cyoa.WithTemplatePath("templates/story_new.html"), cyoa.WithUrlPath(customFuncPath))
 		statsviz.RegisterDefault()
 		http.Handle("/mysite/", sh)
-		log.Println("\n------------\nVisit performance tool at http://localhost:8080/debug/statsviz/\nYou also can read this story via web interface at http://localhost:8080/mysite/\n------------")
 		ch <- "start"
 		http.ListenAndServe(":8080", nil)
-
 	}()
-	go func() {
-		for {
-			if <-ch == "start" {
-				currentStory := story["intro"]
-				fmt.Println(currentStory.Title)
-				fmt.Println("------------")
-				fmt.Println(strings.Join(currentStory.Story, " "))
-				fmt.Println("------------")
-				fmt.Println("Press the number to choose how to proceed with this story : ")
-				for i, st := range currentStory.Options {
-					fmt.Printf("%d.  %v \n", i+1, st.Text)
-				}
-				fmt.Println("------------")
+
+	if <-ch == "start" {
+		go func() {
+			currentStory := story["intro"]
+			for {
+				cyoa.ShowStoryCli(currentStory)
 				var done string
 				fmt.Println("Please enter \"done\" to exit the story... ")
 				fmt.Scan(&done)
-				//ch <- "done"
-				ch <- done
+				if done == "done" {
+					ch <- done
+					break
+				}
+				choice, err := strconv.Atoi(done)
+				if err != nil {
+					log.Fatal("Erro choosing option:", err)
+				}
 
+				cs, ok := story[currentStory.Options[choice-1].Title]
+				if !ok {
+					fmt.Println("Sorry. Incorrect input. Please choose one of the options above")
+					continue
+				}
+				currentStory = cs
 			}
-		}
-	}()
+		}()
+	}
 
 	// orchestaating goroutines:
 	for {
