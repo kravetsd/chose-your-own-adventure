@@ -29,24 +29,39 @@ func main() {
 		log.Fatal("Decoding json:", err)
 	}
 
-	ch := make(chan string)
+	ch := make(chan string, 2)
 	go func() {
 		sh := cyoa.NewStoryHandler(story, cyoa.WithTemplatePath("templates/story_new.html"), cyoa.WithUrlPath(customFuncPath))
 		statsviz.RegisterDefault()
 		http.Handle("/mysite/", sh)
 		log.Println("\n------------\nVisit performance tool at http://localhost:8080/debug/statsviz/\nYou also can read this story via web interface at http://localhost:8080/mysite/\n------------")
+		ch <- "start"
 		http.ListenAndServe(":8080", nil)
 
 	}()
 	go func() {
-		fmt.Println("Please enter your name")
-		var name string
-		fmt.Scan(&name)
-		fmt.Printf("Hello, %v! ", name)
-		ch <- name
+		if <-ch == "start" {
+			fmt.Println("Starting CLI story")
+			fmt.Println("Please enter \"done\" to exit the story... ")
+			var done string
+			fmt.Scan(&done)
+			ch <- "done"
+		} else {
+			fmt.Println(<-ch)
+		}
 	}()
-	if <-ch == "done" {
-		fmt.Println("Bye-bye!")
+
+	// orchestaating goroutines:
+	for {
+		sig := <-ch
+		switch sig {
+		case "done":
+			fmt.Println("Bye-bye!")
+			return
+
+		case "start":
+			ch <- "start"
+		}
 	}
 }
 
