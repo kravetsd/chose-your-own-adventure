@@ -57,7 +57,6 @@ func defaultFuncPath(r *http.Request) string {
 func (sh StoryHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	path := sh.funcPath(r)
-	log.Println(path)
 	if chapter, ok := sh.Story[path]; ok {
 		err := sh.tp.Execute(w, chapter)
 		if err != nil {
